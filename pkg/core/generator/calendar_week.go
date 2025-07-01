@@ -7,18 +7,20 @@ import (
 	"github.com/jrhrmsll/orizon/pkg/core/generator/internal"
 )
 
+const weekDays = 7
+
 // Ensure service implements interface.
 var _ orizon.IntervalGenerator = (*CalendarWeek)(nil)
 
 type CalendarWeek struct {
-	state internal.GeneratorState
-	offet int
+	state  internal.GeneratorState
+	offset int
 }
 
 func NewCalendarWeek(spec *orizon.IntervalSpec, weeks int) *CalendarWeek {
 	return &CalendarWeek{
-		state: internal.NewIteratorState(spec),
-		offet: 7 * (weeks - 1),
+		state:  internal.NewIteratorState(spec),
+		offset: weekDays * (weeks - 1),
 	}
 }
 
@@ -40,13 +42,13 @@ func (iterator *CalendarWeek) Intervals() []orizon.Interval {
 		start, end := time.Time{}, time.Time{}
 		switch iterator.state.Direction {
 		case orizon.IntervalSpecDirectionBackward:
-			start = weekStart.AddDate(0, 0, -iterator.offet)
+			start = weekStart.AddDate(0, 0, -iterator.offset)
 			end = weekEnd
 
 			ref = start.AddDate(0, 0, -1)
 		case orizon.IntervalSpecDirectionForward:
 			start = weekStart
-			end = weekEnd.AddDate(0, 0, iterator.offet)
+			end = weekEnd.AddDate(0, 0, iterator.offset)
 
 			ref = end.AddDate(0, 0, 1)
 		}
