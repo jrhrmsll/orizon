@@ -1,6 +1,7 @@
 package orizon
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -86,10 +87,6 @@ func NewInterval(start, end time.Time) Interval {
 	}
 }
 
-type IntervalGenerator interface {
-	Intervals() []Interval
-}
-
 type IntervalService interface {
-	Find(spec *IntervalSpec) []Interval
+	Find(ctx context.Context, spec *IntervalSpec) ([]Interval, error)
 }

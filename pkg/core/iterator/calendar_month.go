@@ -1,17 +1,18 @@
-package generator
+package iterator
 
 import (
+	"context"
 	"time"
 
 	"github.com/jrhrmsll/orizon"
-	"github.com/jrhrmsll/orizon/pkg/core/generator/internal"
+	"github.com/jrhrmsll/orizon/pkg/core/iterator/internal"
 )
 
 // Ensure service implements interface.
-var _ orizon.IntervalGenerator = (*CalendarMonth)(nil)
+var _ internal.Iterator = (*CalendarMonth)(nil)
 
 type CalendarMonth struct {
-	state internal.GeneratorState
+	state *internal.IteratorState
 }
 
 func NewCalendarMonth(spec *orizon.IntervalSpec) *CalendarMonth {
@@ -20,12 +21,16 @@ func NewCalendarMonth(spec *orizon.IntervalSpec) *CalendarMonth {
 	}
 }
 
-func (iterator *CalendarMonth) Intervals() []orizon.Interval {
+func (iterator *CalendarMonth) Intervals(ctx context.Context) ([]orizon.Interval, error) {
 	intervals := make([]orizon.Interval, 0)
 
 	ref := iterator.state.Ref
 
 	for i := 0; i < iterator.state.Limit; i += 1 {
+		if err := context.Cause(ctx); err != nil {
+			return nil, err
+		}
+
 		start := time.Date(ref.Year(), ref.Month(), 1, 0, 0, 0, 0, ref.Location())
 		end := start.AddDate(0, 1, 0).Add(-1 * time.Microsecond)
 
@@ -39,5 +44,5 @@ func (iterator *CalendarMonth) Intervals() []orizon.Interval {
 		intervals = append(intervals, orizon.NewInterval(start, end))
 	}
 
-	return intervals
+	return intervals, nil
 }

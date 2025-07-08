@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"log"
 	"strings"
 	"time"
@@ -8,13 +9,17 @@ import (
 	"github.com/jrhrmsll/orizon"
 )
 
-type GeneratorState struct {
+type Iterator interface {
+	Intervals(ctx context.Context) ([]orizon.Interval, error)
+}
+
+type IteratorState struct {
 	Ref       time.Time
 	Direction string
 	Limit     int
 }
 
-func NewIteratorState(spec *orizon.IntervalSpec) GeneratorState {
+func NewIteratorState(spec *orizon.IntervalSpec) *IteratorState {
 	if strings.ToLower(spec.Location) == "utc" {
 		spec.Location = "UTC"
 	}
@@ -36,7 +41,7 @@ func NewIteratorState(spec *orizon.IntervalSpec) GeneratorState {
 		ref = start
 	}
 
-	return GeneratorState{
+	return &IteratorState{
 		Ref:       ref,
 		Direction: spec.Direction,
 		Limit:     spec.Limit,

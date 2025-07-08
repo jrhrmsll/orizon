@@ -1,8 +1,11 @@
-package generator
+package iterator
 
-import "github.com/jrhrmsll/orizon"
+import (
+	"github.com/jrhrmsll/orizon"
+	"github.com/jrhrmsll/orizon/pkg/core/iterator/internal"
+)
 
-func Factory(spec *orizon.IntervalSpec) orizon.IntervalGenerator {
+func Factory(spec *orizon.IntervalSpec) internal.Iterator {
 	switch spec.Kind {
 	case orizon.IntervalSpecKindCalendarMonth:
 		return NewCalendarMonth(spec)

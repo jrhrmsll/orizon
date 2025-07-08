@@ -1,8 +1,10 @@
 package core
 
 import (
+	"context"
+
 	"github.com/jrhrmsll/orizon"
-	"github.com/jrhrmsll/orizon/pkg/core/generator"
+	"github.com/jrhrmsll/orizon/pkg/core/iterator"
 )
 
 // Ensure service implements interface.
@@ -14,6 +16,6 @@ func NewIntervalService() *IntervalService {
 	return &IntervalService{}
 }
 
-func (srv *IntervalService) Find(spec *orizon.IntervalSpec) []orizon.Interval {
-	return generator.Factory(spec).Intervals()
+func (srv *IntervalService) Find(ctx context.Context, spec *orizon.IntervalSpec) ([]orizon.Interval, error) {
+	return iterator.Factory(spec).Intervals(ctx)
 }

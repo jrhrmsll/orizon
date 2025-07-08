@@ -12,6 +12,8 @@ import (
 	"github.com/jrhrmsll/orizon"
 )
 
+const StatusCodeContextCanceled = 499
+
 type Application struct {
 	ctx    context.Context
 	logger *log.Logger

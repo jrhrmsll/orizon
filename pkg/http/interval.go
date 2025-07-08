@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -24,5 +25,15 @@ func (controller *IntervalController) Index(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	return c.JSON(http.StatusOK, controller.intervalService.Find(payload))
+	intervals, err := controller.intervalService.Find(c.Request().Context(), payload)
+	if err != nil {
+		switch err {
+		case context.Canceled:
+			return echo.NewHTTPError(StatusCodeContextCanceled, err)
+		default:
+			return echo.NewHTTPError(http.StatusBadRequest, err)
+		}
+	}
+
+	return c.JSON(http.StatusOK, intervals)
 }

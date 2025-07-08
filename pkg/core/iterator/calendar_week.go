@@ -1,19 +1,20 @@
-package generator
+package iterator
 
 import (
+	"context"
 	"time"
 
 	"github.com/jrhrmsll/orizon"
-	"github.com/jrhrmsll/orizon/pkg/core/generator/internal"
+	"github.com/jrhrmsll/orizon/pkg/core/iterator/internal"
 )
 
 const weekDays = 7
 
 // Ensure service implements interface.
-var _ orizon.IntervalGenerator = (*CalendarWeek)(nil)
+var _ internal.Iterator = (*CalendarWeek)(nil)
 
 type CalendarWeek struct {
-	state  internal.GeneratorState
+	state  *internal.IteratorState
 	offset int
 }
 
@@ -24,12 +25,16 @@ func NewCalendarWeek(spec *orizon.IntervalSpec, weeks int) *CalendarWeek {
 	}
 }
 
-func (iterator *CalendarWeek) Intervals() []orizon.Interval {
+func (iterator *CalendarWeek) Intervals(ctx context.Context) ([]orizon.Interval, error) {
 	intervals := make([]orizon.Interval, 0)
 
 	ref := iterator.state.Ref
 
 	for i := 0; i < iterator.state.Limit; i += 1 {
+		if err := context.Cause(ctx); err != nil {
+			return nil, err
+		}
+
 		weekday := int(ref.Weekday())
 		// To make Monday the start of the week, treat Sunday (0) as 7.
 		if weekday == 0 {
@@ -58,5 +63,5 @@ func (iterator *CalendarWeek) Intervals() []orizon.Interval {
 		intervals = append(intervals, orizon.NewInterval(start, end))
 	}
 
-	return intervals
+	return intervals, nil
 }
